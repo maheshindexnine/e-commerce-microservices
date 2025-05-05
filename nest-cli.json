@@ -19,6 +19,15 @@
         "tsConfigPath": "apps/ecommerce-microservices/tsconfig.app.json"
       }
     },
+    "gateway": {
+      "type": "application",
+      "root": "apps/gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gateway/tsconfig.app.json"
+      }
+    },
     "orders": {
       "type": "application",
       "root": "apps/orders",
@@ -35,6 +44,15 @@
       "sourceRoot": "apps/products/src",
       "compilerOptions": {
         "tsConfigPath": "apps/products/tsconfig.app.json"
+      }
+    },
+    "shared": {
+      "type": "library",
+      "root": "libs/shared",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared/tsconfig.lib.json"
       }
     },
     "users": {
