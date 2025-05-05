@@ -3,20 +3,18 @@ import {
   Controller,
   Delete,
   Get,
-  Inject,
   Param,
   Post,
   Put,
 } from '@nestjs/common';
-import { GatewayService } from './gateway.service';
 import { ClientProxy } from '@nestjs/microservices';
+import { Inject } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 
-@Controller('users')
-export class GatewayController {
+@Controller('api/v1/users') // Prefix route with 'users'
+export class UsersController {
   constructor(
     @Inject('USER_SERVICE') private readonly userService: ClientProxy,
-    @Inject('PRODUCT_SERVICE') private readonly productService: ClientProxy,
   ) {}
 
   @Post()
