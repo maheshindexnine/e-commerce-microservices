@@ -1,7 +1,7 @@
 // apps/users/src/schemas/user.schema.ts
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type ProductDocument = Product & Document;
 
@@ -15,6 +15,9 @@ export class Product {
 
   @Prop()
   price: number;
+
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+  userId: Types.ObjectId;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 
@@ -14,6 +14,16 @@ export class UsersController {
   @MessagePattern({ cmd: 'create_user' })
   create(@Payload() data: any) {
     return this.usersService.create(data);
+  }
+
+  @MessagePattern({ cmd: 'register_user' })
+  registerUser(@Payload() data: any) {
+    return this.usersService.create(data);
+  }
+
+  @MessagePattern({ cmd: 'login_user' })
+  async login(@Payload() data: { email: string; password: string }) {
+    return this.usersService.login(data.email, data.password);
   }
 
   @MessagePattern({ cmd: 'get_users' })

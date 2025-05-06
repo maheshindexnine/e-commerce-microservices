@@ -6,10 +6,13 @@ import {
   Param,
   Post,
   Put,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('api/v1/products') // Prefix route with 'products'
 export class ProductsController {
@@ -18,9 +21,14 @@ export class ProductsController {
   ) {}
 
   @Post()
-  async create(@Body() createProductDto: any) {
+  @UseGuards(JwtAuthGuard)
+  async create(@Body() createProductDto: any, @Request() req) {
+    const userId = req.user.sub;
     return firstValueFrom(
-      this.productService.send({ cmd: 'create_product' }, createProductDto),
+      this.productService.send(
+        { cmd: 'create_product' },
+        { ...createProductDto, userId },
+      ),
     );
   }
 
