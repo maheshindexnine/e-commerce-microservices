@@ -21,6 +21,10 @@ The services communicate with each other using **NestJS Microservices** (TCP tra
 
 ---
 
+![Alt Text](./architect.png)
+
+---
+
 ## 🛠️ Prerequisites
 
 Before running the project, ensure you have the following installed:
