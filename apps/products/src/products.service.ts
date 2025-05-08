@@ -42,21 +42,25 @@ export class ProductsService {
 
   async findById(id: string) {
     const product = await this.productModel.findById(id).exec();
-  
+
     if (!product) {
       return null;
     }
-    
+
     const user = await this.client
       .send({ cmd: 'get_user' }, product.userId)
       .toPromise();
-  
+
     const { userId, ...rest } = product.toObject(); // remove userId if not needed in response
-  
+
     return {
       ...rest,
       user,
     };
+  }
+
+  async __internalFindById(id: string) {
+    return this.productModel.findById(id).exec();
   }
 
   async update(id: string, data: Partial<Product>) {

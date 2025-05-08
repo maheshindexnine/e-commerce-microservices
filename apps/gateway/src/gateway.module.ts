@@ -6,6 +6,7 @@ import { ProductsController } from './products.controller';
 import { UsersController } from './users.controller';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
+import { OrderController } from './order.controller';
 
 @Module({
   imports: [
@@ -24,6 +25,11 @@ import { JwtModule } from '@nestjs/jwt';
         transport: Transport.TCP,
         options: { host: '127.0.0.1', port: 3002 },
       },
+      {
+        name: 'ORDER_SERVICE',
+        transport: Transport.TCP,
+        options: { host: '127.0.0.1', port: 3003 },
+      },
     ]),
   ],
   controllers: [
@@ -31,6 +37,7 @@ import { JwtModule } from '@nestjs/jwt';
     UsersController,
     ProductsController,
     AuthController,
+    OrderController,
   ],
   providers: [GatewayService],
 })

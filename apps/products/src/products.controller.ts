@@ -26,6 +26,11 @@ export class ProductsController {
     return this.productsService.findById(id);
   }
 
+  @MessagePattern({ cmd: 'internal_get_product' })
+  __internalFindById(@Payload() id: string) {
+    return this.productsService.__internalFindById(id);
+  }
+
   @MessagePattern({ cmd: 'update_product' })
   update(@Payload() data: { id: string; update: any }) {
     return this.productsService.update(data.id, data.update);
