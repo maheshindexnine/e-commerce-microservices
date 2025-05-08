@@ -3,6 +3,8 @@ import { Order, OrderDocument } from './schemas/order.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Client, ClientProxy, Transport } from '@nestjs/microservices';
+import { User } from 'apps/users/src/schemas/user.schema';
+import { Product } from 'apps/products/src/schemas/product.schema';
 
 @Injectable()
 export class OrdersService {
@@ -28,52 +30,83 @@ export class OrdersService {
     return newOrder.save();
   }
 
-  async findAll() {
-    const orders = await this.orderModel.find().exec();
+  async findAll(): Promise<any[]> {
+    const orders: OrderDocument[] = await this.orderModel.find().exec();
 
-    // Use client to request user data for each product
-    const orderWithUsers = await Promise.all(
+    const orderWithDetails: any[] = await Promise.all(
       orders.map(async (order) => {
-        const user = await this.userClient
-          .send({ cmd: 'get_user' }, order.userId)
+        const user: User = await this.userClient
+          .send({ cmd: 'get_user' }, order.userId.toString())
           .toPromise();
-        const vendor = await this.userClient
-          .send({ cmd: 'get_user' }, order.vendorId)
-          .toPromise();
-        const product = await this.productClient
-          .send({ cmd: 'internal_get_product' }, order.productId)
-          .toPromise();
-        const { userId, vendorId, productId, ...rest } = order.toObject();
-        return { ...rest, user, vendor, product };
+
+        const detailedProducts = await Promise.all(
+          order.products.map(async (item) => {
+            const product: Product = await this.productClient
+              .send({ cmd: 'internal_get_product' }, item.productId.toString())
+              .toPromise();
+
+            const vendor: User = await this.userClient
+              .send({ cmd: 'get_user' }, item.vendorId.toString())
+              .toPromise();
+
+            return {
+              price: item.price,
+              product,
+              vendor,
+            };
+          }),
+        );
+
+        const { userId, products, ...rest } = order.toObject();
+        return {
+          ...rest,
+          user,
+          products: detailedProducts,
+        };
       }),
     );
 
-    return orderWithUsers;
+    return orderWithDetails;
   }
 
-  async findById(id: string) {
-    const order = await this.orderModel.findById(id).exec();
+  async findById(id: string): Promise<any> {
+    const order: OrderDocument | null = await this.orderModel
+      .findById(id)
+      .exec();
 
     if (!order) {
       return null;
     }
 
-    const user = await this.userClient
-      .send({ cmd: 'get_user' }, order.userId)
+    // Fetch user (buyer) data
+    const user: User = await this.userClient
+      .send({ cmd: 'get_user' }, order.userId.toString())
       .toPromise();
-    const vendor = await this.userClient
-      .send({ cmd: 'get_user' }, order.vendorId)
-      .toPromise();
-    const product = await this.productClient
-      .send({ cmd: 'internal_get_product' }, order.productId)
-      .toPromise();
-    const { userId, vendorId, productId, ...rest } = order.toObject(); // remove userId if not needed in response
 
+    // Fetch vendor and product data for each product in the order
+    const detailedProducts = await Promise.all(
+      order.products.map(async (item) => {
+        const product: Product = await this.productClient
+          .send({ cmd: 'internal_get_product' }, item.productId.toString())
+          .toPromise();
+
+        const vendor: User = await this.userClient
+          .send({ cmd: 'get_user' }, item.vendorId.toString())
+          .toPromise();
+
+        return {
+          price: item.price,
+          product,
+          vendor,
+        };
+      }),
+    );
+
+    const { userId, products, ...rest } = order.toObject();
     return {
       ...rest,
       user,
-      vendor,
-      product,
+      products: detailedProducts,
     };
   }
 
